@@ -11,9 +11,7 @@ public class InMemoryKeyValueStore : IKeyValueStore<Subscribers>
     public Task<Subscribers?> GetAsync(string id, CancellationToken ct)
     {
         _store.TryGetValue(id, out var subscribers);
-        return subscribers == null 
-            ? Task.FromResult<Subscribers?>(new Subscribers()) 
-            : Task.FromResult<Subscribers?>(subscribers);
+        return subscribers == null ? Task.FromResult<Subscribers?>(new Subscribers()) : Task.FromResult<Subscribers?>(subscribers);
     }
 
     public Task SetAsync(string id, Subscribers state, CancellationToken ct)
