@@ -12,7 +12,7 @@ using Proto.DependencyInjection;
 using Proto.OpenTelemetry;
 using Proto.Remote;
 using Proto.Remote.GrpcNet;
-using Proto.Remote.Healthchecks;
+using Proto.Remote.HealthChecks;
 using Proto.Utils;
 using StackExchange.Redis;
 
@@ -40,8 +40,8 @@ public static class ProtoActorExtensions
                 actorSystemConfig
                     .WithDeveloperSupervisionLogging(true)
                     .WithDeadLetterRequestLogging(true)
-                    .WithDeveloperThreadPoolStatsLogging(true)
-                    .WithDeveloperReceiveLogging(TimeSpan.FromSeconds(5));
+                    .WithDeveloperThreadPoolStatsLogging(true);
+                //.WithDeveloperReceiveLogging(TimeSpan.FromSeconds(5));
                 // TODO: check WithConfigureProps to add tracing to each actor
             }
 

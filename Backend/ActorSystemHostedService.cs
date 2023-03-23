@@ -3,30 +3,52 @@
     public class ActorSystemHostedService : IHostedService
     {
         private readonly ActorSystem _actorSystem;
+        private readonly IHostApplicationLifetime _hostApplicationLifetime;
         private readonly ILogger<ActorSystemHostedService> _logger;
 
-        public ActorSystemHostedService(ActorSystem actorSystem, ILogger<ActorSystemHostedService> logger)
+        public ActorSystemHostedService(
+            ActorSystem actorSystem,
+            IHostApplicationLifetime hostApplicationLifetime,
+            ILogger<ActorSystemHostedService> logger)
         {
             _actorSystem = actorSystem;
+            _hostApplicationLifetime = hostApplicationLifetime;
             _logger = logger;
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        public Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Starting Proto actor system");
+            _hostApplicationLifetime.ApplicationStarted.Register(OnStarted);
+            _hostApplicationLifetime.ApplicationStopping.Register(OnStopping);
             
-            await _actorSystem
-                .Cluster()
-                .StartMemberAsync();
+            return Task.CompletedTask;
         }
 
-        public async Task StopAsync(CancellationToken cancellationToken)
-        {
-            _logger.LogInformation("Stopping Proto actor system");
+        public Task StopAsync(CancellationToken cancellationToken)
+            => Task.CompletedTask;
 
-            await _actorSystem
-                .Cluster()
-                .ShutdownAsync();
+        private void OnStarted()
+        {
+            Task.Run(async () =>
+            {
+                _logger.LogInformation("Starting Proto actor system");
+            
+                await _actorSystem
+                    .Cluster()
+                    .StartMemberAsync();
+            }).GetAwaiter().GetResult();
+        }
+    
+        private void OnStopping()
+        {
+            Task.Run(async () =>
+            {
+                _logger.LogInformation("Stopping Proto actor system");
+
+                await _actorSystem
+                    .Cluster()
+                    .ShutdownAsync();
+            }).GetAwaiter().GetResult();
         }
     }
 }
